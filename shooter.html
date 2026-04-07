@@ -9,7 +9,7 @@
 body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:Arial,sans-serif;overflow:hidden}
 #gameContainer{position:relative;width:800px;height:600px;border:2px solid #0ff;box-shadow:0 0 20px #0ff;cursor:crosshair}
 #gameCanvas{background:linear-gradient(to bottom,#000011,#000033)}
-#ui{position:absolute;top:10px;left:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff;z-index:5;text-align:left}#ui>div:not(#highScore):not(.difficulty-display){display:block;margin:5px 0}#score{color:#0ff}#lives{color:#f00}#level{color:#ff0}#highScore{position:absolute;top:10px;right:150px;color:#ff0;font-size:18px;text-shadow:0 0 5px #ff0}.difficulty-display{position:absolute;right:10px;top:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff}
+#ui{position:absolute;top:10px;left:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff;z-index:5;text-align:left}#level{color:#ff0}#highScore{position:absolute;top:10px;right:150px;color:#ff0;font-size:18px;text-shadow:0 0 5px #ff0}.difficulty-display{position:absolute;right:10px;top:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff}
 #invincibleEffect{position:absolute;top:70px;left:10px;color:#ff0;font-size:16px;display:none;animation:blink 0.2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
@@ -170,8 +170,6 @@ if(type==='shoot'){osc.frequency.setValueAtTime(880,audioCtx.currentTime);osc.fr
 else if(type==='explosion'){osc.type='sawtooth';osc.frequency.setValueAtTime(100,audioCtx.currentTime);osc.frequency.exponentialRampToValueAtTime(10,audioCtx.currentTime+0.3);gain.gain.setValueAtTime(0.5,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.3);osc.start();osc.stop(audioCtx.currentTime+0.3)}
 else if(type==='hit'){osc.type='square';osc.frequency.setValueAtTime(200,audioCtx.currentTime);osc.frequency.linearRampToValueAtTime(50,audioCtx.currentTime+0.2);gain.gain.setValueAtTime(0.4,audioCtx.currentTime);gain.gain.linearRampToValueAtTime(0.01,audioCtx.currentTime+0.2);osc.start();osc.stop(audioCtx.currentTime+0.2)}
 else if(type==='powerup'){osc.type='sine';osc.frequency.setValueAtTime(440,audioCtx.currentTime);osc.frequency.linearRampToValueAtTime(880,audioCtx.currentTime+0.2);gain.gain.setValueAtTime(0.3,audioCtx.currentTime);gain.gain.linearRampToValueAtTime(0.01,audioCtx.currentTime+0.2);osc.start();osc.stop(audioCtx.currentTime+0.2)}}
-function setInvincible(){invincible=true;invincibleTimer=180;playerVisible=true;document.getElementById('invincibleEffect').style.display='block';console.log('🛡️ 无敌触发！剩余帧数:',invincibleTimer)}
-
           createRecordEffect();
         }
       }
@@ -402,8 +400,6 @@ if(type==='shoot'){osc.frequency.setValueAtTime(880,audioCtx.currentTime);osc.fr
 else if(type==='explosion'){osc.type='sawtooth';osc.frequency.setValueAtTime(100,audioCtx.currentTime);osc.frequency.exponentialRampToValueAtTime(10,audioCtx.currentTime+0.3);gain.gain.setValueAtTime(0.5,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.3);osc.start();osc.stop(audioCtx.currentTime+0.3)}
 else if(type==='hit'){osc.type='square';osc.frequency.setValueAtTime(200,audioCtx.currentTime);osc.frequency.linearRampToValueAtTime(50,audioCtx.currentTime+0.2);gain.gain.setValueAtTime(0.4,audioCtx.currentTime);gain.gain.linearRampToValueAtTime(0.01,audioCtx.currentTime+0.2);osc.start();osc.stop(audioCtx.currentTime+0.2)}
 else if(type==='powerup'){osc.type='sine';osc.frequency.setValueAtTime(440,audioCtx.currentTime);osc.frequency.linearRampToValueAtTime(880,audioCtx.currentTime+0.2);gain.gain.setValueAtTime(0.3,audioCtx.currentTime);gain.gain.linearRampToValueAtTime(0.01,audioCtx.currentTime+0.2);osc.start();osc.stop(audioCtx.currentTime+0.2)}}
-function setInvincible(){invincible=true;invincibleTimer=180;playerVisible=true;document.getElementById('invincibleEffect').style.display='block';console.log('🛡️ 无敌触发！剩余帧数:',invincibleTimer)}
-
 });
 </script>
 </body>
