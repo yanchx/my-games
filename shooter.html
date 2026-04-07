@@ -324,12 +324,14 @@ function selectDifficulty(diff){
 }
 
 function startGameWithDifficulty(){
+  initAudio();
   const config=difficultyConfig[currentDifficulty];
-  gameRunning=true;score=0;lives=config.lives;level=1;bullets=[];enemies=[];powerups=[];player.x=400;mouseX=400;useMouseControl=false;explosions=[];particles=[];engineFlicker=0;
+  gameRunning=true;score=0;lives=config.lives;level=1;bullets=[];enemies=[];powerups=[];player.x=400;mouseX=400;useMouseControl=false;explosions=[];particles=[];engineFlicker=0;invincible=false;invincibleTimer=0;
   weaponType='normal';weaponLevel=1;
   document.getElementById('score').textContent='0';
   document.getElementById('difficulty').textContent=config.label;
   document.getElementById('difficulty').style.color=config.color;
+  document.getElementById('invincibleEffect').style.display='none';
   document.getElementById('weaponName').textContent='普通';
   document.getElementById('weaponName').style.color='#0af';
   updateLives();
