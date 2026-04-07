@@ -65,7 +65,8 @@ const difficultyConfig={easy:{lives:5,enemySpeed:0.4,spawnRate:[90,150],label:'�
 let currentDifficulty='normal',player={x:400,y:550,width:44,height:64,speed:6},bullets=[],enemies=[],powerups=[],score=0,lives=3,level=1,gameRunning=false,keys={},enemySpawnTimer=0,mouseX=400,useMouseControl=false,engineFlicker=0,explosions=[],particles=[];
 let weaponLevel=1,weaponType='normal',maxSpread=3,hasSplash=false;
 let highScore=parseInt(localStorage.getItem('shooterHighScore')||'0');
-document.getElementById('highScoreVal').textContent=highScore;
+// 延迟设置最高分，等 DOM 加载
+window.addEventListener('load',function(){document.getElementById('highScoreVal').textContent=highScore;});
 let invincible=false,invincibleEndTime=0,audioCtx=null;
 function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
 function playSound(type){if(!audioCtx)return;const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.connect(gain);gain.connect(audioCtx.destination);
