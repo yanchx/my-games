@@ -9,10 +9,10 @@
 body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:Arial,sans-serif;overflow:hidden}
 #gameContainer{position:relative;width:800px;height:600px;border:2px solid #0ff;box-shadow:0 0 20px #0ff;cursor:crosshair}
 #gameCanvas{background:linear-gradient(to bottom,#000011,#000033)}
-#ui{position:absolute;top:10px;left:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff;z-index:5;line-height:2.2;}
+#ui{position:absolute;top:10px;left:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff;z-index:5;line-height:2.5;}#score{color:#0ff;display:block}#lives{color:#f00;display:block}#level{color:#ff0;display:block}
 #invincibleEffect{position:absolute;top:70px;left:10px;color:#ff0;font-size:16px;display:none;animation:blink 0.2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-#score{color:#0ff}#lives{color:#f00}
+
 #startScreen,#difficultyScreen,#gameOverScreen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;z-index:10}
 #startScreen h1,#gameOverScreen h1{font-size:48px;margin-bottom:20px;text-shadow:0 0 20px #0ff;background:linear-gradient(to right,#0ff,#f0f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .btn{padding:15px 40px;font-size:24px;background:linear-gradient(to right,#0ff,#00f);border:none;border-radius:10px;color:#fff;cursor:pointer;margin:10px;transition:transform 0.2s;z-index:11}.btn:hover{transform:scale(1.1)}
@@ -110,7 +110,7 @@ function spawnPowerup(x,y){
 }
 
 function update(){
-  engineFlicker++;if(invincible){invincibleTimer--;if(invincibleTimer<=0){invincible=false;document.getElementById('invincibleEffect').style.display='none'}}
+  engineFlicker++;if(invincible){invincibleTimer--;if(invincibleTimer<=0){invincible=false;playerVisible=true;document.getElementById('invincibleEffect').style.display='none'}else{playerVisible=Math.floor(invincibleTimer/10)%2===0;}}
   if(useMouseControl){player.x+=(mouseX-22-player.x)*0.15;}
   else{if(keys['ArrowLeft']&&player.x>0)player.x-=player.speed;if(keys['ArrowRight']&&player.x<756)player.x+=player.speed;}
   
