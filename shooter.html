@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🚀 太空射击</title>
+<title>🚀 太空射击 v3.1.1</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:Arial,sans-serif;overflow:hidden}
@@ -116,7 +116,19 @@ function updateLives(){let hearts='';for(let i=0;i<lives;i++)hearts+='❤️';do
 function gameLoop(){if(!gameRunning)return;updatePlayer();updateBullets();updateEnemies();updateParticles();// 碰撞检测 bullets.forEach((b,bi)=>{enemies.forEach((e,ei)=>{if(checkCollision(b,e)){createExplosion(e.x+e.width/2,e.y+e.height/2,'#'+Math.floor(Math.random()*16777215).toString(16));playSound('explosion');bullets.splice(bi,1);enemies.splice(ei,1);score+=(e.type+1)*10;updateUI();if(score>=level*500){level++;spawnEnemy();spawnEnemy();}}});});enemySpawnTimer++;if(enemySpawnTimer>=60-level*5){spawnEnemy();enemySpawnTimer=0;}draw();requestAnimationFrame(gameLoop);}
 
 // 开始游戏
-function startGame(){initAudio();gameRunning=true;score=0;lives=3;level=1;bullets=[];enemies=[];particles=[];player.x=400;document.getElementById('startScreen').classList.add('hidden');updateUI();updateLives();gameLoop();}
+function startGame(){
+console.log('🚀 游戏启动！');
+try{
+initAudio();
+gameRunning=true;score=0;lives=3;level=1;bullets=[];enemies=[];particles=[];player.x=400;
+document.getElementById('startScreen').classList.add('hidden');
+updateUI();updateLives();gameLoop();
+console.log('✅ 游戏运行中');
+}catch(e){
+console.error('❌ 游戏启动失败:',e);
+alert('游戏启动失败，请查看控制台错误信息 (F12)');
+}
+}
 
 // 游戏结束
 function gameOver(){gameRunning=false;document.getElementById('finalScore').textContent=score;document.getElementById('gameOverScreen').classList.remove('hidden');}
