@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦐 虾虾侦探第一集：消失的蟹黄包</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --header-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #333;
+            --text-secondary: #666;
+            --shadow: 0 20px 60px rgba(0,0,0,0.3);
+            --btn-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --header-gradient: linear-gradient(135deg, #4a1c40 0%, #2d1b4e 100%);
+            --card-bg: rgba(30, 30, 50, 0.95);
+            --text-color: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --shadow: 0 20px 60px rgba(0,0,0,0.5);
+            --btn-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            background: var(--header-gradient);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .theme-toggle,
+        .music-control {
+            position: absolute;
+            top: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .theme-toggle {
+            right: 15px;
+        }
+
+        .music-control {
+            left: 15px;
+        }
+
+        .theme-toggle:hover,
+        .music-control:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .header .emoji {
+            font-size: 3em;
+            display: block;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .score-board {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .score-item {
+            margin: 0 10px;
+            display: inline-block;
+        }
+
+        .score-value {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .story-area {
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        @media (max-width: 600px) {
+            .story-area {
+                padding: 15px;
+            }
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .header .emoji {
+                font-size: 2em;
+            }
+            .choice-btn {
+                padding: 20px 20px;
+                font-size: 1.05em;
+            }
+            .theme-toggle,
+            .music-control {
+                padding: 10px 14px;
+                font-size: 1.3em;
+            }
+        }
+        
+        .scene-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        [data-theme="dark"] .scene-title {
+            color: #a5b4fc;
+        }
+        
+        .story-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+        
+        .story-text p {
+            margin-bottom: 15px;
+        }
+        
+        .choices {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .choice-btn {
+            background: var(--header-gradient);
+            color: white;
+            border: none;
+            padding: 18px 25px;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .choice-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .choice-btn:hover:before {
+            left: 100%;
+        }
+        
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--btn-shadow);
+        }
+        
+        .choice-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .clue-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            animation: slideIn 0.5s ease;
+        }
+
+        [data-theme="dark"] .clue-box {
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: #ffb300;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .clue-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        [data-theme="dark"] .clue-box h4 {
+            color: #ffd54f;
+        }
+        
+        .clue-list {
+            list-style: none;
+        }
+        
+        .clue-list li {
+            padding: 5px 0;
+            color: #856404;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        [data-theme="dark"] .clue-list li {
+            color: #ffe082;
+        }
+
+        .clue-list li:before {
+            content: "🔍";
+            position: absolute;
+            left: 0;
+        }
+        
+        .suspect-card {
+            background: rgba(248, 249, 250, 0.8);
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        [data-theme="dark"] .suspect-card {
+            background: rgba(50, 50, 70, 0.8);
+            border-color: #4a4a6a;
+        }
+
+        .suspect-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .suspect-avatar {
+            font-size: 3em;
+            float: left;
+            margin-right: 15px;
+            animation: sway 3s infinite;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        
+        .suspect-card h4 {
+            color: #495057;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        [data-theme="dark"] .suspect-card h4 {
+            color: #e0e0e0;
+        }
+
+        .ending {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            animation: fadeIn 1s ease;
+        }
+
+        [data-theme="dark"] .ending {
+            background: linear-gradient(135deg, #2d5a5a 0%, #5a2d3a 100%);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .ending h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        [data-theme="dark"] .ending h2 {
+            color: #a5b4fc;
+        }
+        
+        .rating {
+            font-size: 2em;
+            margin: 20px 0;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .restart-btn {
+            background: var(--header-gradient);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.4);
+        }
+        
+        .highlight {
+            background: yellow;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+            animation: highlight 2s infinite;
+        }
+
+        [data-theme="dark"] .highlight {
+            background: rgba(255, 255, 0, 0.3);
+        }
+
+        @keyframes highlight {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .music-control {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .music-control:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .next-episode {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .next-episode h3 {
+            margin-bottom: 10px;
+        }
+
+        .next-episode button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .next-episode button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <button class="music-control" onclick="toggleMusic()" title="背景音乐">🎵</button>
+            <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌙</button>
+            <span class="emoji">🦐🔍</span>
+            <h1>虾虾侦探</h1>
+            <p>第一集：消失的蟹黄包</p>
+            
+            <div class="score-board">
+                <span class="score-item">🔍 线索：<span class="score-value" id="clueCount">0</span></span>
+                <span class="score-item">⭐ 评分：<span class="score-value" id="scoreValue">100</span></span>
+                <span class="score-item">🏆 评级：<span class="score-value" id="rankValue">新手</span></span>
+            </div>
+        </div>
+        
+        <div class="story-area" id="storyArea">
+            <!-- 动态内容将在这里显示 -->
+        </div>
+    </div>
+
+    <!-- 音效使用 Web Audio API 生成，无需外部文件 -->
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            currentScene: 'start',
+            score: 100,
+            clues: 0,
+            choices: [],
+            perfectRoute: false
+        };
+
+        // 主题切换
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            // 保存用户偏好
+            localStorage.setItem('theme', newTheme);
+            
+            playSound('click');
+        }
+
+        // 初始化主题
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // 音乐控制
+        let musicPlaying = false;
+        function toggleMusic() {
+            const btn = document.querySelector('.music-control');
+            
+            if (musicPlaying) {
+                stopMusic();
+                btn.textContent = '🎵';
+                btn.style.background = 'rgba(255,255,255,0.2)';
+            } else {
+                startMusic();
+                btn.textContent = '⏸️';
+                btn.style.background = 'rgba(255,255,255,0.4)';
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        // Web Audio API 生成背景音乐
+        let audioContext = null;
+        let musicOscillators = [];
+        let musicInterval = null;
+
+        function startMusic() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 更好的背景音乐：轻柔的琶音（C大调）
+                const notes = [
+                    523.25, 659.25, 783.99, 1046.50,  // C E G C (高音)
+                    392.00, 493.88, 587.33, 783.99    // G B D G
+                ];
+                let noteIndex = 0;
+                
+                musicInterval = setInterval(() => {
+                    const freq = notes[noteIndex % notes.length];
+                    const velocity = 0.05 + Math.random() * 0.05; // 轻柔的音量
+                    playNote(freq, 0.6, velocity);
+                    noteIndex++;
+                }, 400); // 每个音符 400ms
+                
+            } catch (e) {
+                console.log('音频播放需要用户交互');
+            }
+        }
+
+        function stopMusic() {
+            if (musicInterval) {
+                clearInterval(musicInterval);
+                musicInterval = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+        }
+
+        // 生成单个音符
+        function playNote(frequency, duration, volume) {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // 播放音效（使用 Web Audio API）
+        function playSound(type = 'click') {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                if (type === 'click') {
+                    // 点击音效 - 短促的高音
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                    oscillator.start(ctx.currentTime);
+                    oscillator.stop(ctx.currentTime + 0.1);
+                } else if (type === 'success') {
+                    // 成功音效 - 上升的音阶
+                    [523.25, 659.25, 783.99].forEach((freq, i) => {
+                        setTimeout(() => playNote(freq, 0.2, 0.15), i * 100);
+                    });
+                } else if (type === 'error') {
+                    // 错误音效 - 下降的音阶
+                    [783.99, 659.25, 523.25].forEach((freq, i) => {
+                        setTimeout(() => playNote(freq, 0.2, 0.1), i * 100);
+                    });
+                }
+                
+                setTimeout(() => ctx.close(), 500);
+            } catch (e) {
+                console.log('音效播放失败:', e);
+            }
+        }
+
+        // 更新分数
+        function updateScore(points, clueFound = false) {
+            gameState.score += points;
+            if (clueFound) {
+                gameState.clues++;
+                const clueEl = document.getElementById('clueCount');
+                if (clueEl) clueEl.textContent = gameState.clues;
+            }
+            
+            // 限制分数范围
+            gameState.score = Math.max(0, Math.min(100, gameState.score));
+            const scoreEl = document.getElementById('scoreValue');
+            if (scoreEl) scoreEl.textContent = gameState.score;
+            
+            // 更新评级
+            updateRank();
+        }
+
+        function updateRank() {
+            const rankEl = document.getElementById('rankValue');
+            if (!rankEl) return;
+            const score = gameState.score;
+            let rank = '新手';
+            if (score >= 90) rank = '🏆 S 级侦探';
+            else if (score >= 80) rank = '🥇 A 级侦探';
+            else if (score >= 70) rank = '🥈 B 级侦探';
+            else if (score >= 60) rank = '🥉 C 级侦探';
+            else rank = '📚 实习侦探';
+            
+            document.getElementById('rankValue').textContent = rank;
+        }
+
+        // 游戏剧情数据
+        const storyData = {
+            start: {
+                scene: "🌅 早晨 7:00，上海徐汇区某小区",
+                text: `
+                    <p>你是<strong>"虾虾侦探"</strong>，一只穿着风衣、戴着猎鹿帽的拟人化龙虾🦐。</p>
+                    <p>今天是你开业第一天，就接到了第一个案子：</p>
+                    <p class="highlight">"王阿姨的蟹黄包神秘消失了！"</p>
+                    <p>王阿姨说："我明明把刚蒸好的蟹黄包放在厨房桌子上，去阳台收了个衣服的功夫，回来就不见了！家里只有三个'人'..."</p>
+                    
+                    <h3 style="margin: 20px 0 10px;">【嫌疑人列表】（点击查看详情）</h3>
+                    <div class="suspect-card" onclick="playSound('click')">
+                        <span class="suspect-avatar">🦀</span>
+                        <h4>螃蟹大叔</h4>
+                        <p>王阿姨的邻居 | 平时就爱蹭吃蹭喝，今天鬼鬼祟祟的</p>
+                    </div>
+                    <div class="suspect-card" onclick="playSound('click')">
+                        <span class="suspect-avatar">🐙</span>
+                        <h4>章鱼小哥</h4>
+                        <p>外卖员 | 正在给王阿姨送快递，有机会下手</p>
+                    </div>
+                    <div class="suspect-card" onclick="playSound('click')">
+                        <span class="suspect-avatar">🐟</span>
+                        <h4>金鱼妹妹</h4>
+                        <p>王阿姨的宠物 | 虽然小，但也不是完全没可能...</p>
+                    </div>
+                `,
+                choices: [
+                    { text: "A) 去厨房查看案发现场，寻找线索", next: "scene_a", score: 5 },
+                    { text: "B) 询问王阿姨更多细节", next: "scene_b", score: 10 },
+                    { text: "C) 审问三个嫌疑人", next: "scene_c", score: 0 }
+                ]
+            },
+            
+            scene_b: {
+                scene: "📍 场景：王阿姨家的客厅",
+                text: `
+                    <p>你拿出小本本，开始询问王阿姨。</p>
+                    <p><strong>你：</strong>"王阿姨，您能详细说说当时的情况吗？"</p>
+                    <p><strong>王阿姨</strong>（一边擦眼泪一边说）："哎呀，虾虾侦探啊，事情是这样的...今天早上 6 点半，我蒸了一笼蟹黄包，一共<strong>6 个</strong>，个个皮薄馅大！7 点整，我把包子端到厨房桌子上，想着去阳台收个衣服，前后也就<strong>3 分钟</strong>吧。结果回来一看——<strong>盘子空了！</strong>连个渣都没剩下！"</p>
+                    <p><strong>你：</strong>"那这 3 分钟里，您听到什么动静了吗？"</p>
+                    <p><strong>王阿姨：</strong>"嗯...我想想...好像听到厨房传来'窸窸窣窣'的声音，还有...一股<strong>海鲜腥味</strong>！"</p>
+                    
+                    <div class="clue-box">
+                        <h4>🔍 获得新线索 (+10 分)</h4>
+                        <ul class="clue-list">
+                            <li>时间窗口：案发时间仅 3 分钟（7:00-7:03）</li>
+                            <li>气味线索：现场有海鲜腥味</li>
+                            <li>声音线索：听到"窸窸窣窣"的声音</li>
+                            <li>可疑细节：金鱼缸的盖子今天是开着的！</li>
+                        </ul>
+                    </div>
+                `,
+                choices: [
+                    { text: "A) 去厨房仔细勘察现场", next: "scene_a", score: 5 },
+                    { text: "B) 审问螃蟹大叔", next: "scene_crab", score: 0 },
+                    { text: "C) 审问章鱼小哥", next: "scene_octopus", score: 0 },
+                    { text: "D) 检查金鱼缸", next: "scene_fish", score: 5 }
+                ],
+                onEnter: () => updateScore(10, true)
+            },
+            
+            scene_a: {
+                scene: "📍 场景：王阿姨家的厨房",
+                text: `
+                    <p>你戴上放大镜，趴在地上开始细致地勘察。</p>
+                    
+                    <h4>🔍 勘察结果：</h4>
+                    <p><strong>桌面痕迹：</strong>盘子边缘有淡淡的油渍，盘子旁边有一小滩水渍，还在慢慢蒸发...</p>
+                    <p><strong>地面线索：</strong>在桌子下方，你发现了一串<strong>湿漉漉的脚印</strong>！脚印很小，呈<strong>圆形吸盘状</strong>...脚印从厨房门口延伸到...<strong>冰箱后面</strong>！</p>
+                    <p><strong>气味分析：</strong>味道最浓的地方是...<strong>冰箱门缝</strong>！</p>
+                    <p><strong>意外发现：</strong>在冰箱门把手上，你发现了一小片<strong>透明的粘液</strong>，用手指沾一点搓了搓——滑滑的，有点像章鱼的分泌物！</p>
+                    
+                    <div class="clue-box">
+                        <h4>🔍 线索更新 (+5 分)</h4>
+                        <ul class="clue-list">
+                            <li>吸盘脚印：湿漉漉、圆形吸盘状 → 指向章鱼小哥</li>
+                            <li>水渍轨迹：从桌子到冰箱后面</li>
+                            <li>冰箱异味：海鲜味最浓的地方</li>
+                            <li>透明粘液：类似章鱼分泌物</li>
+                        </ul>
+                    </div>
+                `,
+                choices: [
+                    { text: "A) 打开冰箱查看", next: "scene_fridge", score: 10 },
+                    { text: "B) 蹲守冰箱后面", next: "scene_wait", score: 5 },
+                    { text: "C) 拿着证据审问章鱼小哥", next: "scene_octopus_confront", score: 5 }
+                ],
+                onEnter: () => updateScore(5, true)
+            },
+            
+            scene_fridge: {
+                scene: "📍 场景：厨房 - 冰箱前",
+                text: `
+                    <p>你深吸一口气，伸手打开了冰箱门。</p>
+                    <p>❄️ <strong>冷藏室下层</strong>：在角落的保鲜盒里，你看到了熟悉的白色！</p>
+                    <p class="highlight">🎉 找到了！6 个蟹黄包，一个不少！</p>
+                    <p>但是...</p>
+                    <p><strong>仔细观察包子：</strong></p>
+                    <ul>
+                        <li>包子表面有<strong>细小的孔洞</strong>，像是被什么东西戳过</li>
+                        <li>有一个包子已经被<strong>咬了一口</strong></li>
+                        <li>包子旁边还有一些<strong>没吃完的小鱼干碎屑</strong>...</li>
+                    </ul>
+                    
+                    <div class="clue-box">
+                        <h4>🤔 新的疑点 (+10 分)</h4>
+                        <p>• 如果是章鱼小哥，他为什么要偷了又放回去？还只咬一口？</p>
+                        <p>• 旁边有小鱼干 → 这是金鱼妹妹最爱吃的零食！</p>
+                        <p>• 金鱼妹妹那么小，是怎么把 6 个包子搬进冰箱的？</p>
+                    </div>
+                `,
+                choices: [
+                    { text: "A) 拿着证据审问金鱼妹妹", next: "scene_fish_confront", score: 10 },
+                    { text: "B) 继续审问章鱼小哥", next: "scene_octopus_confront", score: 5 },
+                    { text: "C) 直接宣布真相！", next: "ending_accuse_octopus", score: 0 }
+                ],
+                onEnter: () => updateScore(10, true)
+            },
+            
+            scene_fish_confront: {
+                scene: "📍 场景：客厅鱼缸旁",
+                text: `
+                    <p>你捧着那盒蟹黄包，走到鱼缸前。金鱼妹妹正悠闲地吐着泡泡。</p>
+                    <p><strong>你：</strong>"金鱼妹妹，你能解释一下为什么包子旁边有小鱼干吗？"</p>
+                    <p><strong>金鱼妹妹</strong>（突然慌张起来）："啊...那个...我...好吧我承认！"</p>
+                    <p>她小声说："我今天确实出了鱼缸...我看到包子好香，就跳出来想尝一口。可我刚咬了一口，就听到王阿姨回来了！我吓坏了，赶紧把包子塞进冰箱，躲回鱼缸...但是我太慌了，忘记把盖子盖上了...对不起！"</p>
+                    <p>但她犹豫了一下，又说：<strong>"不过...我看到章鱼哥哥在门口等快递，他手上湿漉漉的，可能也碰过包子..."</strong></p>
+                `,
+                choices: [
+                    { text: "A) 指认金鱼妹妹是真凶", next: "ending_wrong_fish", score: -30 },
+                    { text: "B) 指认章鱼小哥是真凶", next: "ending_accuse_octopus", score: 30 },
+                    { text: "C) 再想想，可能有隐情", next: "scene_think_again", score: 10 }
+                ]
+            },
+            
+            ending_accuse_octopus: {
+                scene: "🎬 结局揭晓",
+                text: `
+                    <div class="ending">
+                        <h2>✅ 推理正确！真凶是章鱼小哥！</h2>
+                        <p>你整理了一下风衣，目光如炬地看向章鱼小哥：</p>
+                        <p>"别装了！让我来还原整个作案过程：</p>
+                        <ol style="text-align:left; margin: 20px auto; max-width: 600px;">
+                            <li>你送快递时看到蟹黄包，用触手戳了包子试烫不烫</li>
+                            <li>咬了一口发现太烫，怕被发现，塞进冰箱</li>
+                            <li>慌乱中留下了粘液和小鱼干（可能是你午饭剩的）</li>
+                            <li>金鱼妹妹只知道自己咬了一口，以为是自己做的案</li>
+                            <li><strong>但只有拥有 8 只触手的你，才能一次性搬动 6 个包子！</strong></li>
+                        </ol>
+                        <p>章鱼小哥低下了头："好吧...我承认。我送完快递太饿了，实在没忍住..."</p>
+                        <p>王阿姨叹了口气："想吃可以跟我说嘛，何必偷偷摸摸的。这笼包子就当送你了。"</p>
+                        
+                        <div class="rating" id="finalRating">🌟🌟🌟🌟🌟</div>
+                        <p><strong id="finalRank">综合评级：S 级侦探！</strong></p>
+                        <p>观察力⭐⭐⭐⭐⭐ | 推理能力⭐⭐⭐⭐⭐ | 指认准确度⭐⭐⭐⭐⭐</p>
+                        
+                        <div class="next-episode">
+                            <h3>🎮 想玩续作吗？</h3>
+                            <p>第二集：《午夜鱼缸异响事件》</p>
+                            <p>第三集：《螃蟹大叔的失踪之谜》</p>
+                            <button onclick="alert('续作开发中...敬请期待！')">🔜 即将上线</button>
+                        </div>
+                        
+                        <button class="restart-btn" onclick="restartGame()">🔄 再玩一次</button>
+                    </div>
+                `,
+                choices: [],
+                onEnter: () => {
+                    const score = gameState.score;
+                    let stars = '🌟'.repeat(Math.ceil(score / 20));
+                    let rank = 'S 级侦探';
+                    if (score < 60) { stars = '🌟'.repeat(Math.ceil(score / 20)); rank = 'C 级侦探'; }
+                    else if (score < 70) rank = 'B 级侦探';
+                    else if (score < 80) rank = 'A 级侦探';
+                    
+                    setTimeout(() => { const r=document.getElementById('finalRating'); if(r) r.textContent=stars; }, 100);
+                    const r2=document.getElementById('finalRank'); if(r2) r2.textContent=`综合评级：${rank}！`;
+                    
+                    // 播放成功音效
+                    setTimeout(() => playSound('success'), 300);
+                }
+            },
+            
+            ending_wrong_fish: {
+                scene: "❌ 错误的指认",
+                text: `
+                    <div class="ending" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                        <h2>❌ 推理错误！</h2>
+                        <p>你指着金鱼妹妹说："真凶就是你！"</p>
+                        <p>金鱼妹妹委屈地哭了："我只是咬了一口，但我搬不动 6 个包子啊..."</p>
+                        <p>王阿姨若有所思地看着章鱼小哥湿漉漉的手...</p>
+                        <p class="highlight">💡 提示：金鱼妹妹那么小，真的能搬动 6 个包子吗？再想想物理可能性！</p>
+                        
+                        <button class="restart-btn" onclick="playSound('error'); setTimeout(restartGame, 500);">🔄 重新推理</button>
+                    </div>
+                `,
+                choices: [],
+                onEnter: () => setTimeout(() => playSound('error'), 300)
+            },
+            
+            scene_think_again: {
+                scene: "🤔 深度思考",
+                text: `
+                    <p>你闭上眼睛，把所有线索在脑海里过了一遍：</p>
+                    <ul>
+                        <li>✅ 包子被戳了孔 → 尖锐物体（章鱼触手？螃蟹钳子？）</li>
+                        <li>✅ 现场有粘液 → 章鱼分泌物</li>
+                        <li>✅ 有小鱼干 → 金鱼妹妹的零食</li>
+                        <li>✅ 包子被搬进冰箱 → 需要一定力气</li>
+                        <li>✅ 金鱼妹妹承认咬了一口，但她搬得动 6 个包子吗？</li>
+                    </ul>
+                    <p class="highlight">突然！你灵光一闪：</p>
+                    <p><strong>金鱼妹妹只咬了一口，但把 6 个包子都搬进冰箱的，是另有其人！那个人有 8 只触手，力气大，还会留下粘液...</strong></p>
+                `,
+                choices: [
+                    { text: "A) 再次指认章鱼小哥", next: "ending_accuse_octopus", score: 20 },
+                    { text: "B) 指认螃蟹大叔", next: "ending_wrong_crab", score: -20 }
+                ],
+                onEnter: () => updateScore(10)
+            },
+            
+            ending_wrong_crab: {
+                scene: "❌ 错误的指认",
+                text: `
+                    <div class="ending" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                        <h2>❌ 推理错误！</h2>
+                        <p>你指着螃蟹大叔说："是你干的！"</p>
+                        <p>螃蟹大叔一脸懵："我一直在看电视啊！而且我的钳子戳不出那种圆形的孔..."</p>
+                        <p>王阿姨看了看冰箱把手上的粘液："这看起来不像螃蟹的东西啊..."</p>
+                        <p class="highlight">💡 提示：注意粘液的来源和包子上的孔洞形状！</p>
+                        
+                        <button class="restart-btn" onclick="playSound('error'); setTimeout(restartGame, 500);">🔄 重新推理</button>
+                    </div>
+                `,
+                choices: [],
+                onEnter: () => setTimeout(() => playSound('error'), 300)
+            },
+            
+            scene_wait: {
+                scene: "📍 场景：厨房 - 冰箱后面",
+                text: `
+                    <p>你蹲在冰箱后面，用手电筒仔细查看...</p>
+                    <p>发现了一些<strong>章鱼的吸盘印记</strong>！看来章鱼小哥确实来过这里。</p>
+                    <p>但你还缺关键证据...要不要打开冰箱看看？</p>
+                `,
+                choices: [
+                    { text: "A) 打开冰箱", next: "scene_fridge", score: 5 },
+                    { text: "B) 去审问章鱼小哥", next: "scene_octopus_confront", score: 0 }
+                ],
+                onEnter: () => updateScore(5, true)
+            },
+            
+            scene_crab: {
+                scene: "📍 场景：客厅 - 螃蟹大叔面前",
+                text: `
+                    <p><strong>你：</strong>"螃蟹大叔，案发时您在做什么？"</p>
+                    <p><strong>螃蟹大叔：</strong>"我在看电视啊！《动物世界》重播，可好看了！"</p>
+                    <p><strong>你：</strong>"有人能作证吗？"</p>
+                    <p><strong>螃蟹大叔：</strong>"我一个人看的...不过王阿姨应该能听到电视声吧？"</p>
+                    <p>看起来他没有什么嫌疑...先去看看其他地方吧。</p>
+                `,
+                choices: [
+                    { text: "A) 去厨房勘察", next: "scene_a", score: 5 },
+                    { text: "B) 去检查金鱼缸", next: "scene_fish", score: 5 }
+                ]
+            },
+            
+            scene_octopus: {
+                scene: "📍 场景：门口 - 章鱼小哥面前",
+                text: `
+                    <p><strong>你：</strong>"章鱼小哥，你送快递时有没有进过厨房？"</p>
+                    <p><strong>章鱼小哥</strong>（有点紧张）："我...我就在门口等签收，没进去啊！"</p>
+                    <p>但你注意到他的<strong>触手是湿漉漉的</strong>，而且口袋里似乎有什么东西在发光...</p>
+                    <p>要不要搜身？（开玩笑的，侦探不能随便搜身）</p>
+                `,
+                choices: [
+                    { text: "A) 去厨房找证据再回来对质", next: "scene_a", score: 10 },
+                    { text: "B) 直接指出他手上的粘液", next: "scene_octopus_confront", score: 0 }
+                ]
+            },
+            
+            scene_octopus_confront: {
+                scene: "📍 场景：对质现场",
+                text: `
+                    <p>你拿着粘液证据，直视章鱼小哥的眼睛：</p>
+                    <p><strong>你：</strong>"这是从冰箱把手上取下的粘液，和你的分泌物一模一样！你怎么解释？"</p>
+                    <p><strong>章鱼小哥</strong>（冷汗直流）："我...我..."</p>
+                    <p>他的心理防线正在崩溃...是时候给出最后一击了！</p>
+                `,
+                choices: [
+                    { text: "A) 直接指认真凶", next: "ending_accuse_octopus", score: 20 },
+                    { text: "B) 给他一个坦白的机会", next: "ending_confess", score: 15 }
+                ]
+            },
+            
+            ending_confess: {
+                scene: "🎬 结局：坦白从宽",
+                text: `
+                    <div class="ending">
+                        <h2>✅ 完美解决！</h2>
+                        <p>你温和地说："如果你现在坦白，我可以请王阿姨从轻处理。"</p>
+                        <p>章鱼小哥终于崩溃了："对不起！我送完快递太饿了，闻到香味实在没忍住...我只咬了一口，想把剩下的藏起来等没人了再来拿..."</p>
+                        <p>王阿姨叹了口气："唉，想吃可以跟我说嘛。这笼包子就当送你了，下次别这样了。"</p>
+                        <p>章鱼小哥感动得眼泪汪汪："呜呜呜...谢谢王阿姨！谢谢虾虾侦探！"</p>
+                        
+                        <div class="rating" id="finalRating2">🌟🌟🌟🌟🌟</div>
+                        <p><strong id="finalRank2">综合评级：S 级侦探！不仅破案，还化解了矛盾！</strong></p>
+                        
+                        <div class="next-episode">
+                            <h3>🎮 想玩续作吗？</h3>
+                            <p>第二集：《午夜鱼缸异响事件》</p>
+                            <p>第三集：《螃蟹大叔的失踪之谜》</p>
+                            <button onclick="alert('续作开发中...敬请期待！')">🔜 即将上线</button>
+                        </div>
+                        
+                        <button class="restart-btn" onclick="restartGame()">🔄 再玩一次</button>
+                    </div>
+                `,
+                choices: [],
+                onEnter: () => {
+                    const score = gameState.score;
+                    let stars = '🌟'.repeat(Math.ceil(score / 20));
+                    let rank = 'S 级侦探';
+                    if (score < 60) rank = 'C 级侦探';
+                    else if (score < 70) rank = 'B 级侦探';
+                    else if (score < 80) rank = 'A 级侦探';
+                    setTimeout(() => { const r=document.getElementById('finalRating2'); if(r) r.textContent=stars; }, 100);
+                    const r2=document.getElementById('finalRank2'); if(r2) r2.textContent=`综合评级：${rank}！`;
+                    
+                    // 播放成功音效
+                    setTimeout(() => playSound('success'), 300);
+                }
+            },
+            
+            scene_fish: {
+                scene: "📍 场景：鱼缸旁",
+                text: `
+                    <p>你走近鱼缸，发现：</p>
+                    <ul>
+                        <li>鱼缸盖子确实是开着的</li>
+                        <li>鱼缸边缘有一些水渍，像是有人爬出来过</li>
+                        <li>缸底有一些小鱼干碎屑</li>
+                    </ul>
+                    <p>金鱼妹妹看到你，吐了个泡泡："你好呀，虾虾侦探～"</p>
+                    <p>她看起来天真无邪，但真的没有嫌疑吗？</p>
+                `,
+                choices: [
+                    { text: "A) 直接问她有没有偷包子", next: "scene_fish_confront", score: 0 },
+                    { text: "B) 先去厨房找证据", next: "scene_a", score: 10 },
+                    { text: "C) 问问王阿姨金鱼平时的习性", next: "scene_ask_habit", score: 5 }
+                ],
+                onEnter: () => updateScore(5, true)
+            },
+            
+            scene_ask_habit: {
+                scene: "📍 场景：询问王阿姨",
+                text: `
+                    <p><strong>你：</strong>"王阿姨，金鱼妹妹平时会爬出鱼缸吗？"</p>
+                    <p><strong>王阿姨：</strong>"一般不会啊，但今天我发现盖子开着，可能她趁我不注意跳出来了..."</p>
+                    <p><strong>你：</strong>"她能搬动 6 个包子吗？"</p>
+                    <p><strong>王阿姨：</strong>"6 个包子？那对她来说太重了吧！她自己能跳出鱼缸就不错了。"</p>
+                    <p>嗯...金鱼妹妹可能只是咬了一口，但搬包子的应该是别人。</p>
+                `,
+                choices: [
+                    { text: "A) 去厨房找真正的搬运者线索", next: "scene_a", score: 10 },
+                    { text: "B) 审问章鱼小哥", next: "scene_octopus", score: 0 }
+                ],
+                onEnter: () => updateScore(5)
+            },
+            
+            scene_c: {
+                scene: "📍 场景：客厅 - 集体审问",
+                text: `
+                    <p>你把三个嫌疑人叫到一起，开始逐个审问。</p>
+                    <p><strong>螃蟹大叔</strong>："我在看电视！"</p>
+                    <p><strong>章鱼小哥</strong>（紧张）："我...我在等快递签收..."</p>
+                    <p><strong>金鱼妹妹</strong>（天真）："我在鱼缸里玩呀～"</p>
+                    <p>看起来章鱼小哥最可疑...但还需要更多证据。</p>
+                `,
+                choices: [
+                    { text: "A) 去厨房找证据", next: "scene_a", score: 10 },
+                    { text: "B) 单独审问章鱼小哥", next: "scene_octopus", score: 5 }
+                ]
+            }
+        };
+
+        // 渲染场景
+        function renderScene(sceneId) {
+            const scene = storyData[sceneId];
+            const storyArea = document.getElementById('storyArea');
+            
+            let html = `
+                <div class="scene-title">${scene.scene}</div>
+                <div class="story-text">${scene.text}</div>
+            `;
+            
+            if (scene.choices && scene.choices.length > 0) {
+                html += '<div class="choices">';
+                scene.choices.forEach((choice, index) => {
+                    html += `<button class="choice-btn" onclick="handleChoice('${choice.next}', ${choice.score})">${choice.text}</button>`;
+                });
+                html += '</div>';
+            }
+            
+            storyArea.innerHTML = html;
+            
+            // 执行进入回调（在 DOM 渲染后）
+            if (scene.onEnter) {
+                setTimeout(() => scene.onEnter(), 50);
+            }
+            
+            // 播放音效
+            playSound('click');
+        }
+
+        // 处理选择（统一入口）
+        function handleChoice(nextScene, score) {
+            playSound('click');
+            goToScene(nextScene, score);
+        }
+
+        function goToScene(sceneId, score) {
+            gameState.currentScene = sceneId;
+            gameState.choices.push(sceneId);
+            if (score !== undefined && score !== 0) {
+                updateScore(score);
+            }
+            renderScene(sceneId);
+        }
+
+        function restartGame() {
+            gameState = {
+                currentScene: 'start',
+                score: 100,
+                clues: 0,
+                choices: [],
+                perfectRoute: false
+            };
+            document.getElementById('clueCount').textContent = '0';
+            document.getElementById('scoreValue').textContent = '100';
+            document.getElementById('rankValue').textContent = '新手';
+            renderScene('start');
+        }
+
+        // 初始化游戏
+        initTheme();
+        renderScene('start');
+    </script>
+</body>
+</html>

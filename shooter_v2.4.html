@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 太空射击 v2.4</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:Arial,sans-serif;overflow:hidden}
+#gameContainer{position:relative;width:800px;height:600px;border:2px solid #0ff;box-shadow:0 0 20px #0ff;cursor:crosshair}
+#gameCanvas{background:linear-gradient(to bottom,#000011,#000033)}
+#ui{position:absolute;top:10px;left:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff}
+#score{color:#0ff}
+#lives{color:#f00}
+#startScreen,#difficultyScreen,#gameOverScreen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;z-index:10}
+#startScreen h1,#gameOverScreen h1{font-size:48px;margin-bottom:20px;text-shadow:0 0 20px #0ff;background:linear-gradient(to right,#0ff,#f0f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.btn{padding:15px 40px;font-size:24px;background:linear-gradient(to right,#0ff,#00f);border:none;border-radius:10px;color:#fff;cursor:pointer;margin:10px;transition:transform 0.2s}
+.btn:hover{transform:scale(1.1)}
+.hidden{display:none!important}
+#controls{margin-top:20px;font-size:14px;color:#aaa}
+.difficulty-btn{padding:20px 60px;font-size:28px;margin:15px;border:3px solid;border-radius:15px;cursor:pointer;transition:all 0.3s}
+.difficulty-btn:hover{transform:scale(1.1);box-shadow:0 0 30px currentColor}
+.diff-easy{background:rgba(0,255,0,0.2);border-color:#0f0;color:#0f0}
+.diff-normal{background:rgba(255,255,0,0.2);border-color:#ff0;color:#ff0}
+.diff-hard{background:rgba(255,0,0,0.2);border-color:#f00;color:#f00}
+.diff-label{font-size:18px;margin-bottom:30px;color:#aaa}
+</style>
+</head>
+<body>
+<div id="gameContainer">
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div id="ui">
+<div>得分：<span id="score">0</span></div>
+<div>生命：<span id="lives">❤️❤️❤️</span></div>
+<div>等级：<span id="level">1</span></div>
+<div style="position:absolute;right:10px;top:10px;">难度：<span id="difficulty">普通</span></div>
+</div>
+<div id="startScreen">
+<h1>🚀 太空射击</h1>
+<p style="margin-bottom:10px;font-size:18px;">鼠标移动控制 | 点击射击</p>
+<p style="margin-bottom:20px;font-size:14px;color:#aaa;">或：方向键移动 + 空格射击</p>
+<button class="btn" id="startBtn">开始游戏</button>
+<div id="controls">💡 提示：鼠标控制更精准！</div>
+</div>
+<div id="difficultyScreen" class="hidden">
+<h1>选择难度</h1>
+<p class="diff-label">难度会影响敌人速度、数量和你的生命值</p>
+<button class="difficulty-btn diff-easy" onclick="selectDifficulty('easy')">
+🟢 简单
+<div style="font-size:14px;margin-top:10px;color:#0f0;">❤️❤️❤️❤️❤️ | 🐌 慢速 | 👾 稀疏</div>
+</button>
+<button class="difficulty-btn diff-normal" onclick="selectDifficulty('normal')">
+🟡 普通
+<div style="font-size:14px;margin-top:10px;color:#ff0;">❤️❤️❤️ | ⚡ 中速 | 👾 适中</div>
+</button>
+<button class="difficulty-btn diff-hard" onclick="selectDifficulty('hard')">
+🔴 困难
+<div style="font-size:14px;margin-top:10px;color:#f00;">❤️ | 🚀 快速 | 💀 密集</div>
+</button>
+</div>
+<div id="gameOverScreen" class="hidden">
+<h1>游戏结束</h1>
+<p style="font-size:24px;margin-bottom:20px;">最终得分：<span id="finalScore" style="color:#0ff">0</span></p>
+<p style="font-size:18px;margin-bottom:20px;">难度：<span id="finalDifficulty" style="color:#ff0">普通</span></p>
+<button class="btn" id="restartBtn">再来一局</button>
+<button class="btn" id="changeDiffBtn" style="background:linear-gradient(to right,#666,#999);font-size:18px;padding:10px 30px;margin-top:10px;">更换难度</button>
+</div>
+</div>
+<script src="game_logic.js"></script>
+</body>
+</html>

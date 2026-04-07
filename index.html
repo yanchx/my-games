@@ -33,16 +33,17 @@ h1{text-align:center;color:#fff;font-size:48px;margin-bottom:20px;text-shadow:0 
 <div class="card-body">
 <h3 class="card-title">🦐 虾虾侦探</h3>
 <p class="card-desc">文字推理冒险游戏！王阿姨的蟹黄包消失了，找出真凶！6 个结局等你探索。</p>
-<a href="index.html" class="play-btn">开始探案 →</a>
+<a href="detective.html" class="play-btn">开始探案 →</a>
 </div>
 </div>
 <!-- 太空射击 -->
 <div class="game-card">
 <div class="card-img" style="background:linear-gradient(135deg,#00c6ff,#0072ff)">🚀👾</div>
 <div class="card-body">
-<h3 class="card-title">🚀 太空射击</h3>
-<p class="card-desc">经典射击游戏！驾驶飞船击落外星人，炫酷爆炸特效，关卡系统！</p>
+<h3 class="card-title">🚀 太空射击 <span style="font-size:14px;color:#0ff;">v3.1</span></h3>
+<p class="card-desc">经典射击游戏！驾驶飞船击落外星人，炫酷爆炸特效，关卡系统！<br><strong style="color:#f0f;">✨ 新特性：</strong>音效系统 + 受伤无敌时间</p>
 <a href="shooter.html" class="play-btn">开始战斗 →</a>
+<div style="margin-top:10px;text-align:center;"><a href="shooter_versions.html" style="color:#fff;font-size:14px;text-decoration:underline;">查看版本历史</a></div>
 </div>
 </div>
 </div>
@@ -50,5 +51,13 @@ h1{text-align:center;color:#fff;font-size:48px;margin-bottom:20px;text-shadow:0 
 <p>© 2026 游戏中心 | 纯网页游戏，无需下载</p>
 </div>
 </div>
+<script>
+// 添加点击效果
+document.querySelectorAll('.play-btn').forEach(btn => {
+btn.addEventListener('click', function(e) {
+console.log('点击游戏:', this.textContent);
+});
+});
+</script>
 </body>
 </html>

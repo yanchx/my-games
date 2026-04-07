@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 太空射击 - 版本历史</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:linear-gradient(135deg,#1a1a2e,#16213e);min-height:100vh;font-family:Arial,sans-serif;padding:40px 20px}
+.container{max-width:900px;margin:0 auto}
+h1{text-align:center;color:#0ff;font-size:42px;margin-bottom:10px;text-shadow:0 0 20px #0ff}
+.subtitle{text-align:center;color:#fff;opacity:0.8;margin-bottom:40px;font-size:18px}
+.back-btn{display:inline-block;padding:12px 30px;background:linear-gradient(to right,#0ff,#00f);color:#fff;text-decoration:none;border-radius:10px;margin-bottom:30px;transition:transform 0.2s}
+.back-btn:hover{transform:translateY(-2px)}
+.version-card{background:rgba(255,255,255,0.1);border-left:4px solid #0ff;border-radius:10px;padding:25px;margin-bottom:25px;transition:all 0.3s}
+.version-card:hover{transform:translateX(10px);background:rgba(255,255,255,0.15)}
+.version-card.latest{border-left-color:#f0f;box-shadow:0 0 30px rgba(255,0,255,0.3)}
+.version-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px}
+.version-number{font-size:24px;font-weight:bold;color:#0ff}
+.version-date{color:#aaa;font-size:14px}
+.latest-badge{display:inline-block;padding:5px 15px;background:linear-gradient(to right,#f0f,#f00);color:#fff;border-radius:20px;font-size:12px;font-weight:bold}
+.version-features{list-style:none;margin-top:15px}
+.version-features li{padding:5px 0;color:#ddd;position:relative;padding-left:25px}
+.version-features li:before{content:"✓";color:#0f0;position:absolute;left:0;font-weight:bold}
+.play-link{display:inline-block;margin-top:15px;padding:10px 25px;background:linear-gradient(to right,#0ff,#00f);color:#fff;text-decoration:none;border-radius:8px;font-size:14px;transition:opacity 0.2s}
+.play-link:hover{opacity:0.8}
+.footer{text-align:center;color:#fff;opacity:0.6;margin-top:50px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="container">
+<a href="index.html" class="back-btn">← 返回游戏中心</a>
+<h1>🚀 太空射击</h1>
+<p class="subtitle">版本演进历史</p>
+
+<!-- v3.1 - 最新版本 -->
+<div class="version-card latest">
+<div class="version-header">
+<span class="version-number">v3.1</span>
+<span class="version-date">2026-04-07</span>
+<span class="latest-badge">🆕 最新</span>
+</div>
+<ul class="version-features">
+<li>🔊 新增音效系统（射击、爆炸、受伤音效）</li>
+<li>🛡️ 新增无敌机制：受伤后 3 秒无敌时间，带闪烁效果</li>
+<li>✨ 右上角显示"无敌中"提示</li>
+<li>📝 修复 UI 文字重叠问题，优化行间距</li>
+<li>🎨 独立颜色标识：得分 (青色)、生命 (红色)、等级 (黄色)</li>
+</ul>
+<a href="shooter.html" class="play-link">▶ 立即游玩</a>
+</div>
+
+<!-- v3.0 -->
+<div class="version-card">
+<div class="version-header">
+<span class="version-number">v3.0</span>
+<span class="version-date">2026-04-06</span>
+</div>
+<ul class="version-features">
+<li>🎯 新增难度选择系统（简单/普通/困难）</li>
+<li>🔫 多种武器系统：双发、三发、溅射、激光、散弹</li>
+<li>💾 最高分记录功能（本地存储）</li>
+<li>🇨🇳 中国风火箭设计（带火焰特效）</li>
+<li>👾 敌机设计：日式风格（零式战机元素）</li>
+<li>🎨 炫酷粒子爆炸效果</li>
+<li>🖱️ 鼠标控制模式</li>
+</ul>
+<a href="shooter_v3.0.html" class="play-link">▶ 游玩此版本</a>
+</div>
+
+<!-- v2.4 -->
+<div class="version-card">
+<div class="version-header">
+<span class="version-number">v2.4</span>
+<span class="version-date">2026-04-06</span>
+</div>
+<ul class="version-features">
+<li>📱 移动端触摸控制支持</li>
+<li>🎮 虚拟摇杆按钮</li>
+<li>📐 响应式设计适配手机</li>
+</ul>
+<a href="shooter_v2.4.html" class="play-link">▶ 游玩此版本</a>
+</div>
+
+<!-- v2.3 -->
+<div class="version-card">
+<div class="version-header">
+<span class="version-number">v2.3</span>
+<span class="version-date">2026-04-06</span>
+</div>
+<ul class="version-features">
+<li>👾 三种敌人类型（不同颜色和速度）</li>
+<li>💥 粒子爆炸效果</li>
+<li>⭐ 背景星星动画</li>
+<li>📊 关卡系统</li>
+</ul>
+<a href="shooter_backup_v2.3.html" class="play-link">▶ 游玩此版本</a>
+</div>
+
+<!-- v1.0 -->
+<div class="version-card">
+<div class="version-header">
+<span class="version-number">v1.0</span>
+<span class="version-date">2026-04-05</span>
+</div>
+<ul class="version-features">
+<li>🚀 基础太空射击玩法</li>
+<li>⌨️ 键盘方向键移动</li>
+<li>🔫 空格键射击</li>
+<li>❤️ 生命系统</li>
+</ul>
+<span style="color:#888;font-size:14px;">⚠️ 初始版本，已归档</span>
+</div>
+
+<div class="footer">
+<p>© 2026 太空射击 | 版本号：v3.1 | 最后更新：2026-04-07</p>
+</div>
+</div>
+</body>
+</html>

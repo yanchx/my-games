@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚀 太空射击 v2.4</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:Arial,sans-serif;overflow:hidden}
+#gameContainer{position:relative;width:800px;height:600px;border:2px solid #0ff;box-shadow:0 0 20px #0ff;cursor:crosshair}
+#gameCanvas{background:linear-gradient(to bottom,#000011,#000033)}
+#ui{position:absolute;top:10px;left:10px;color:#fff;font-size:18px;text-shadow:0 0 5px #0ff}
+#score{color:#0ff}
+#lives{color:#f00}
+#startScreen,#difficultyScreen,#gameOverScreen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;z-index:10}
+#startScreen h1,#gameOverScreen h1{font-size:48px;margin-bottom:20px;text-shadow:0 0 20px #0ff;background:linear-gradient(to right,#0ff,#f0f);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.btn{padding:15px 40px;font-size:24px;background:linear-gradient(to right,#0ff,#00f);border:none;border-radius:10px;color:#fff;cursor:pointer;margin:10px;transition:transform 0.2s}
+.btn:hover{transform:scale(1.1)}
+.hidden{display:none!important}
+#controls{margin-top:20px;font-size:14px;color:#aaa}
+.difficulty-btn{padding:20px 60px;font-size:28px;margin:15px;border:3px solid;border-radius:15px;cursor:pointer;transition:all 0.3s}
+.difficulty-btn:hover{transform:scale(1.1);box-shadow:0 0 30px currentColor}
+.diff-easy{background:rgba(0,255,0,0.2);border-color:#0f0;color:#0f0}
+.diff-normal{background:rgba(255,255,0,0.2);border-color:#ff0;color:#ff0}
+.diff-hard{background:rgba(255,0,0,0.2);border-color:#f00;color:#f00}
+.diff-label{font-size:18px;margin-bottom:30px;color:#aaa}
+</style>
+</head>
+<body>
+<div id="gameContainer">
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div id="ui">
+<div>得分：<span id="score">0</span></div>
+<div>生命：<span id="lives">❤️❤️❤️</span></div>
+<div>等级：<span id="level">1</span></div>
+<div style="position:absolute;right:10px;top:10px;">难度：<span id="difficulty">普通</span></div>
+</div>
+<div id="startScreen">
+<h1>🚀 太空射击</h1>
+<p style="margin-bottom:10px;font-size:18px;">鼠标移动控制 | 点击射击</p>
+<p style="margin-bottom:20px;font-size:14px;color:#aaa;">或：方向键移动 + 空格射击</p>
+<button class="btn" id="startBtn">开始游戏</button>
+<div id="controls">💡 提示：鼠标控制更精准！</div>
+</div>
+<div id="difficultyScreen" class="hidden">
+<h1>选择难度</h1>
+<p class="diff-label">难度会影响敌人速度、数量和你的生命值</p>
+<button class="difficulty-btn diff-easy" onclick="selectDifficulty('easy')">
+🟢 简单
+<div style="font-size:14px;margin-top:10px;color:#0f0;">❤️❤️❤️❤️❤️ | 🐌 慢速 | 👾 稀疏</div>
+</button>
+<button class="difficulty-btn diff-normal" onclick="selectDifficulty('normal')">
+🟡 普通
+<div style="font-size:14px;margin-top:10px;color:#ff0;">❤️❤️❤️ | ⚡ 中速 | 👾 适中</div>
+</button>
+<button class="difficulty-btn diff-hard" onclick="selectDifficulty('hard')">
+🔴 困难
+<div style="font-size:14px;margin-top:10px;color:#f00;">❤️ | 🚀 快速 | 💀 密集</div>
+</button>
+</div>
+<div id="gameOverScreen" class="hidden">
+<h1>游戏结束</h1>
+<p style="font-size:24px;margin-bottom:20px;">最终得分：<span id="finalScore" style="color:#0ff">0</span></p>
+<p style="font-size:18px;margin-bottom:20px;">难度：<span id="finalDifficulty" style="color:#ff0">普通</span></p>
+<button class="btn" id="restartBtn">再来一局</button>
+<button class="btn" id="changeDiffBtn" style="background:linear-gradient(to right,#666,#999);font-size:18px;padding:10px 30px;margin-top:10px;">更换难度</button>
+</div>
+</div>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const difficultyConfig = {
+    easy: { lives: 5, enemySpeed: 0.4, spawnRate: [90, 150], label: '简单', color: '#0f0' },
+    normal: { lives: 3, enemySpeed: 0.6, spawnRate: [70, 120], label: '普通', color: '#ff0' },
+    hard: { lives: 1, enemySpeed: 1.0, spawnRate: [40, 80], label: '困难', color: '#f00' }
+};
+
+let currentDifficulty = 'normal';
+let player = {x: 400, y: 550, width: 44, height: 64, speed: 6};
+let bullets = [], enemies = [], score = 0, lives = 3, level = 1, gameRunning = false;
+let keys = {}, enemySpawnTimer = 0;
+let mouseX = 400;
+let useMouseControl = false;
+let engineFlicker = 0;
+
+canvas.addEventListener('mousemove', e => {
+    if (!gameRunning) return;
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    useMouseControl = true;
+});
+
+canvas.addEventListener('mousedown', e => {
+    if (gameRunning && useMouseControl) fire();
+});
+
+document.addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (e.code === 'Space' && gameRunning) {
+        useMouseControl = false;
+        fire();
+    }
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+
+function fire() {
+    bullets.push({x: player.x + 18, y: player.y, w: 8, h: 18, spd: 11});
+    if (level >= 3) {
+        bullets.push({x: player.x + 2, y: player.y + 18, w: 6, h: 14, spd: 10});
+        bullets.push({x: player.x + 34, y: player.y + 18, w: 6, h: 14, spd: 10});
+    }
+}
+
+function update() {
+    engineFlicker++;
+    
+    if (useMouseControl) {
+        player.x += (mouseX - 22 - player.x) * 0.15;
+    } else {
+        if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+        if (keys['ArrowRight'] && player.x < 756) player.x += player.speed;
+    }
+    
+    bullets.forEach((b, i) => { b.y -= b.spd; if (b.y < 0) bullets.splice(i, 1); });
+    
+    enemies.forEach((e, i) => {
+        e.y += e.spd;
+        if (e.y > 600) { 
+            enemies.splice(i, 1); 
+            lives--; 
+            updateLives();
+            if (lives <= 0) gameOver(); 
+        }
+    });
+    
+    bullets.forEach((b, bi) => {
+        enemies.forEach((e, ei) => {
+            if (b.x < e.x + e.w && b.x + b.w > e.x && b.y < e.y + e.h && b.y + b.h > e.y) {
+                createExplosion(e.x + e.w/2, e.y + e.h/2, e.size);
+                bullets.splice(bi, 1); 
+                enemies.splice(ei, 1);
+                score += Math.floor((e.type + 1) * 10 * (e.size / 40));
+                document.getElementById('score').textContent = score;
+                if (score >= level * 500) { level++; spawnEnemy(); spawnEnemy(); }
+            }
+        });
+    });
+    
+    const config = difficultyConfig[currentDifficulty];
+    enemySpawnTimer++;
+    const spawnInterval = Math.max(config.spawnRate[0], config.spawnRate[1] - level * 2);
+    if (enemySpawnTimer >= spawnInterval) { 
+        spawnEnemy(); 
+        enemySpawnTimer = 0; 
+    }
+}
+
+function spawnEnemy() {
+    const config = difficultyConfig[currentDifficulty];
+    const baseSpeed = config.enemySpeed;
+    const sizeType = Math.random();
+    let size, hp, type;
+    
+    if (sizeType < 0.5) {
+        size = 35; hp = 1; type = 0;
+    } else if (sizeType < 0.8) {
+        size = 50; hp = 2; type = 1;
+    } else {
+        size = 70; hp = 3; type = 2;
+    }
+    
+    const shipType = Math.floor(Math.random() * 3);
+    
+    enemies.push({ 
+        x: Math.random() * (800 - size), 
+        y: -size, 
+        w: size, 
+        h: size * 0.8, 
+        spd: baseSpeed + level * 0.1 + (70 - size) * 0.02,
+        type: shipType,
+        size: size,
+        hp: hp
+    });
+}
+
+let explosions = [];
+function createExplosion(x, y, size) {
+    const particleCount = Math.floor(size / 2);
+    for (let i = 0; i < particleCount; i++) {
+        explosions.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            size: Math.random() * size/5 + 2,
+            life: 30,
+            color: ['#0ff', '#00f', '#fff', '#ff0'][Math.floor(Math.random() * 4)]
+        });
+    }
+}
+
+function updateExplosions() {
+    for (let i = explosions.length - 1; i >= 0; i--) {
+        let e = explosions[i];
+        e.x += e.vx;
+        e.y += e.vy;
+        e.life--;
+        e.size *= 0.92;
+        if (e.life <= 0) explosions.splice(i, 1);
+    }
+}
+
+function drawExplosions() {
+    explosions.forEach(e => {
+        ctx.globalAlpha = e.life / 30;
+        ctx.fillStyle = e.color;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+    });
+}
+
+// 绘制五角星
+function drawStar(ctx, cx, cy, outerR, innerR, points) {
+    ctx.beginPath();
+    for (let i = 0; i < points * 2; i++) {
+        const r = i % 2 === 0 ? outerR : innerR;
+        const angle = (i * Math.PI / points) - Math.PI/2;
+        const x = cx + Math.cos(angle) * r;
+        const y = cy + Math.sin(angle) * r;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
+}
+
+// 绘制合金弹头风格的中国火箭
+function drawChineseRocket(x, y, w, h) {
+    const cx = x + w/2;
+    
+    // 尾焰脉动
+    const flameHeight = 20 + Math.sin(engineFlicker * 0.4) * 6;
+    
+    // 外层尾焰
+    const outerFlame = ctx.createLinearGradient(cx, y + h, cx, y + h + flameHeight);
+    outerFlame.addColorStop(0, 'rgba(255, 150, 50, 0.9)');
+    outerFlame.addColorStop(0.5, 'rgba(255, 80, 0, 0.6)');
+    outerFlame.addColorStop(1, 'transparent');
+    ctx.fillStyle = outerFlame;
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, y + h - 3);
+    ctx.quadraticCurveTo(cx - 5, y + h + flameHeight * 0.6, cx, y + h + flameHeight);
+    ctx.quadraticCurveTo(cx + 5, y + h + flameHeight * 0.6, cx + 10, y + h - 3);
+    ctx.fill();
+    
+    // 内层蓝色核心
+    const innerFlame = ctx.createLinearGradient(cx, y + h, cx, y + h + flameHeight * 0.7);
+    innerFlame.addColorStop(0, 'rgba(100, 200, 255, 0.9)');
+    innerFlame.addColorStop(1, 'transparent');
+    ctx.fillStyle = innerFlame;
+    ctx.beginPath();
+    ctx.moveTo(cx - 5, y + h - 2);
+    ctx.quadraticCurveTo(cx - 2, y + h + flameHeight * 0.4, cx, y + h + flameHeight * 0.7);
+    ctx.quadraticCurveTo(cx + 2, y + h + flameHeight * 0.4, cx + 5, y + h - 2);
+    ctx.fill();
+    
+    // 火箭主体金属渐变
+    const bodyGrad = ctx.createLinearGradient(x, y, x + w, y);
+    bodyGrad.addColorStop(0, '#4a4a4a');
+    bodyGrad.addColorStop(0.15, '#8b8b8b');
+    bodyGrad.addColorStop(0.3, '#c0c0c0');
+    bodyGrad.addColorStop(0.5, '#e8e8e8');
+    bodyGrad.addColorStop(0.7, '#c0c0c0');
+    bodyGrad.addColorStop(0.85, '#8b8b8b');
+    bodyGrad.addColorStop(1, '#4a4a4a');
+    
+    // 流线型机身（合金弹头风格）
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx, y + 8);
+    ctx.quadraticCurveTo(x + w, y + h/4, x + w - 5, y + h * 0.75);
+    ctx.quadraticCurveTo(x + w, y + h - 6, cx, y + h - 4);
+    ctx.quadraticCurveTo(x + 5, y + h - 6, x + 5, y + h * 0.75);
+    ctx.quadraticCurveTo(x, y + h/4, cx, y + 8);
+    ctx.fill();
+    
+    // 机身装甲分界线
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, y + 12);
+    ctx.lineTo(cx, y + h - 8);
+    ctx.stroke();
+    
+    // 横向装甲纹路
+    for (let i = 0; i < 4; i++) {
+        const yy = y + 20 + i * 12;
+        ctx.beginPath();
+        ctx.moveTo(x + 8, yy);
+        ctx.lineTo(x + w - 8, yy);
+        ctx.stroke();
+    }
+    
+    // 金色头部锥体
+    const noseGrad = ctx.createRadialGradient(cx, y + 12, 2, cx, y + 12, 16);
+    noseGrad.addColorStop(0, '#ffd700');
+    noseGrad.addColorStop(0.6, '#ffaa00');
+    noseGrad.addColorStop(1, '#cc6600');
+    ctx.fillStyle = noseGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx, y + 4);
+    ctx.quadraticCurveTo(x + w - 8, y + 18, x + w - 6, y + 28);
+    ctx.quadraticCurveTo(cx, y + 32, x + 6, y + 28);
+    ctx.quadraticCurveTo(x + 8, y + 18, cx, y + 4);
+    ctx.fill();
+    
+    // 头部高光
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.beginPath();
+    ctx.ellipse(cx - 5, y + 14, 3, 6, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 侧面五星红旗（只画右半部分，像是从正面看过去的透视效果）
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(cx, y + 35, w/2 - 6, 20);
+    ctx.clip();
+    
+    // 红色底
+    ctx.fillStyle = '#de2910';
+    ctx.fillRect(cx - 1, y + 35, w/2 - 5, 20);
+    
+    // 大星（只显示右半部分）
+    ctx.fillStyle = '#ffde00';
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(cx, y + 42, 10, 10);
+    ctx.clip();
+    drawStar(ctx, cx + 3, y + 47, 6, 3, 5);
+    ctx.restore();
+    
+    // 四颗小星（只显示右半部分）
+    const smallStars = [
+        {x: cx + 14, y: y + 40},
+        {x: cx + 16, y: y: y + 50},
+        {x: cx + 12, y: y + 56}
+    ];
+    smallStars.forEach(pos => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(cx, pos.y - 4, 10, 8);
+        ctx.clip();
+        drawStar(ctx, pos.x, pos.y, 3, 1.5, 5);
+        ctx.restore();
+    });
+    
+    ctx.restore();
+    
+    // 侧翼（金属灰色）
+    const wingGrad = ctx.createLinearGradient(x - 12, y + h/2, x, y + h/2);
+    wingGrad.addColorStop(0, '#555');
+    wingGrad.addColorStop(0.6, '#999');
+    wingGrad.addColorStop(1, '#777');
+    ctx.fillStyle = wingGrad;
+    
+    // 左翼
+    ctx.beginPath();
+    ctx.moveTo(x + 6, y + h/2 + 5);
+    ctx.lineTo(x - 12, y + h - 12);
+    ctx.lineTo(x + 6, y + h - 8);
+    ctx.fill();
+    
+    // 右翼
+    ctx.beginPath();
+    ctx.moveTo(x + w - 6, y + h/2 + 5);
+    ctx.lineTo(x + w + 12, y + h - 12);
+    ctx.lineTo(x + w - 6, y + h - 8);
+    ctx.fill();
+    
+    // 机翼铆钉细节
+    ctx.fillStyle = '#444';
+    for (let i = 0; i < 3; i++) {
+        ctx.beginPath();
+        ctx.arc(x - 4, y + h/2 + 8 + i * 8, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + w + 4, y + h/2 + 8 + i * 8, 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// 绘制合金弹头风格的日本飞船
+function drawJapaneseShip(e) {
+    const x = e.x, y = e.y, w = e.w, h = e.h;
+    const cx = x + w/2;
+    const cy = y + h/2;
+    const shipType = e.type;
+    
+    if (shipType === 0) {
+        // 类型 0：三角攻击机（合金弹头风格）
+        const grad = ctx.createLinearGradient(x, y, x + w, y + h);
+        grad.addColorStop(0, '#3a3a3a');
+        grad.addColorStop(0.3, '#7a7a7a');
+        grad.addColorStop(0.5, '#aaaaaa');
+        grad.addColorStop(0.7, '#7a7a7a');
+        grad.addColorStop(1, '#3a3a3a');
+        ctx.fillStyle = grad;
+        
+        // 三角形主机身
+        ctx.beginPath();
+        ctx.moveTo(cx, y + h);
+        ctx.lineTo(x + 8, y + 10);
+        ctx.quadraticCurveTo(cx, y - 5, x + w - 8, y + 10);
+        ctx.closePath();
+        ctx.fill();
+        
+        // 机翼
+        ctx.beginPath();
+        ctx.moveTo(x + 5, y + h/2);
+        ctx.lineTo(x - 10, y + h - 5);
+        ctx.lineTo(x + 12, y + h - 8);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + w - 5, y + h/2);
+        ctx.lineTo(x + w + 10, y + h - 5);
+        ctx.lineTo(x + w - 12, y + h - 8);
+        ctx.fill();
+        
+        // 装甲分界线
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx, y + 15);
+        ctx.lineTo(cx, y + h - 5);
+        ctx.stroke();
+        
+        // 日之丸标志
+        ctx.fillStyle = '#e8e8e8';
+        ctx.beginPath();
+        ctx.arc(cx, cy, w * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#bc002d';
+        ctx.beginPath();
+        ctx.arc(cx, cy, w * 0.13, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 绿色驾驶舱
+        ctx.fillStyle = '#00ff88';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 8, 6, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+    } else if (shipType === 1) {
+        // 类型 1：双翼战斗机
+        const grad = ctx.createLinearGradient(x, y, x + w, y + h);
+        grad.addColorStop(0, '#4a4a4a');
+        grad.addColorStop(0.4, '#8a8a8a');
+        grad.addColorStop(0.6, '#8a8a8a');
+        grad.addColorStop(1, '#4a4a4a');
+        ctx.fillStyle = grad;
+        
+        // 中央机身
+        ctx.beginPath();
+        ctx.moveTo(cx, y + h);
+        ctx.lineTo(x + w/3, y + 15);
+        ctx.quadraticCurveTo(cx, y, x + w - w/3, y + 15);
+        ctx.closePath();
+        ctx.fill();
+        
+        // 上机翼
+        ctx.fillStyle = '#6a6a6a';
+        ctx.beginPath();
+        ctx.moveTo(x - 8, y + h/3);
+        ctx.lineTo(x + w + 8, y + h/3);
+        ctx.lineTo(x + w + 4, y + h/3 + 12);
+        ctx.lineTo(x - 4, y + h/3 + 12);
+        ctx.closePath();
+        ctx.fill();
+        
+        // 下机翼
+        ctx.beginPath();
+        ctx.moveTo(x - 6, y + h/2);
+        ctx.lineTo(x + w + 6, y + h/2);
+        ctx.lineTo(x + w + 2, y + h/2 + 10);
+        ctx.lineTo(x - 2, y + h/2 + 10);
+        ctx.closePath();
+        ctx.fill();
+        
+        // 推进器
+        ctx.fillStyle = '#555';
+        ctx.fillRect(x + w/3 - 8, y + h - 10, 10, 12);
+        ctx.fillRect(x + w - w/3 - 2, y + h - 10, 10, 12);
+        
+        // 推进器火焰
+        const flameColor = `rgba(255, ${100 + Math.random() * 100}, 50, 0.8)`;
+        ctx.fillStyle = flameColor;
+        ctx.beginPath();
+        ctx.moveTo(x + w/3 - 3, y + h);
+        ctx.lineTo(x + w/3 - 8, y + h + 10 + Math.random() * 8);
+        ctx.lineTo(x + w/3 + 2, y + h);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + w - w/3 + 3, y + h);
+        ctx.lineTo(x + w - w/3 - 2, y + h + 10 + Math.random() * 8);
+        ctx.lineTo(x + w - w/3 + 7, y + h);
+        ctx.fill();
+        
+        // 日之丸
+        ctx.fillStyle = '#f0f0f0';
+        ctx.beginPath();
+        ctx.arc(cx, y + h/2 - 5, w * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#bc002d';
+        ctx.beginPath();
+        ctx.arc(cx, y + h/2 - 5, w * 0.11, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 驾驶舱
+        ctx.fillStyle = '#00ff88';
+        ctx.beginPath();
+        ctx.ellipse(cx, y + h/2 + 5, 5, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+    } else {
+        // 类型 2：重型轰炸机
+        const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, w/2);
+        grad.addColorStop(0, '#6a6a6a');
+        grad.addColorStop(0.6, '#9a9a9a');
+        grad.addColorStop(1, '#5a5a5a');
+        ctx.fillStyle = grad;
+        
+        // 圆形主机身
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, w/2, h/2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 顶部炮塔
+        ctx.fillStyle = '#4a4a4a';
+        ctx.beginPath();
+        ctx.arc(cx, y + 10, 12, Math.PI, 0);
+        ctx.fill();
+        
+        // 两侧机翼
+        ctx.fillStyle = '#7a7a7a';
+        ctx.beginPath();
+        ctx.moveTo(x + 10, cy - 5);
+        ctx.lineTo(x - 15, cy + 10);
+        ctx.lineTo(x - 10, cy + 20);
+        ctx.lineTo(x + 15, cy + 10);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.moveTo(x + w - 10, cy - 5);
+        ctx.lineTo(x + w + 15, cy + 10);
+        ctx.lineTo(x + w + 10, cy + 20);
+        ctx.lineTo(x + w - 15, cy + 10);
+        ctx.closePath();
+        ctx.fill();
+        
+        // 底部引擎
+        ctx.fillStyle = '#555';
+        ctx.fillRect(cx - 20, y + h - 15, 18, 18);
+        ctx.fillRect(cx + 2, y + h - 15, 18, 18);
+        
+        // 引擎火焰
+        ctx.fillStyle = `rgba(255, ${80 + Math.random() * 120}, 30, 0.8)`;
+        ctx.beginPath();
+        ctx.moveTo(cx - 11, y + h);
+        ctx.lineTo(cx - 20, y + h + 12 + Math.random() * 10);
+        ctx.lineTo(cx - 2, y + h);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(cx + 11, y + h);
+        ctx.lineTo(cx + 2, y + h + 12 + Math.random() * 10);
+        ctx.lineTo(cx + 20, y + h);
+        ctx.fill();
+        
+        // 日之丸标志
+        ctx.fillStyle = '#ebebeb';
+        ctx.beginPath();
+        ctx.arc(cx, cy, w * 0.28, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#bc002d';
+        ctx.beginPath();
+        ctx.arc(cx, cy, w * 0.17, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 驾驶舱窗口
+        ctx.fillStyle = '#00ff88';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + 10, 8, 10, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    // 铆钉细节（所有类型通用）
+    ctx.fillStyle = '#333';
+    const rivetSpacing = w / 6;
+    for (let i = 1; i < 5; i++) {
+        ctx.beginPath();
+        ctx.arc(x + i * rivetSpacing, y + h - 8, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// 绘制蓝色合金弹头子弹
+function drawBlueBullet(b) {
+    const x = b.x, y = b.y, w = b.w, h = b.h;
+    const cx = x + w/2;
+    
+    // 蓝色尾焰
+    const flameGradient = ctx.createLinearGradient(cx, y + h, cx, y + h + 15);
+    flameGradient.addColorStop(0, 'rgba(0, 180, 255, 0.9)');
+    flameGradient.addColorStop(0.5, 'rgba(0, 100, 255, 0.5)');
+    flameGradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = flameGradient;
+    ctx.beginPath();
+    ctx.moveTo(cx - 3, y + h);
+    ctx.lineTo(cx + 3, y + h);
+    ctx.lineTo(cx, y + h + 10 + Math.random() * 5);
+    ctx.closePath();
+    ctx.fill();
+    
+    // 子弹主体（蓝色金属）
+    const bulletGrad = ctx.createLinearGradient(x, y, x + w, y);
+    bulletGrad.addColorStop(0, '#003366');
+    bulletGrad.addColorStop(0.25, '#0066cc');
+    bulletGrad.addColorStop(0.5, '#00aaff');
+    bulletGrad.addColorStop(0.75, '#0066cc');
+    bulletGrad.addColorStop(1, '#003366');
+    ctx.fillStyle = bulletGrad;
+    ctx.fillRect(x, y, w, h);
+    
+    // 金属高光
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillRect(x + 2, y + 2, 2, h - 4);
+    
+    // 蓝色能量弹头
+    const tipGrad = ctx.createRadialGradient(cx, y + 5, 1, cx, y + 5, w/2);
+    tipGrad.addColorStop(0, '#ffffff');
+    tipGrad.addColorStop(0.4, '#00ffff');
+    tipGrad.addColorStop(1, '#0066ff');
+    ctx.fillStyle = tipGrad;
+    ctx.beginPath();
+    ctx.moveTo(cx, y);
+    ctx.quadraticCurveTo(x + w, y + h/3, cx, y + h/2);
+    ctx.quadraticCurveTo(x, y + h/3, cx, y);
+    ctx.fill();
+    
+    // 弹壳环纹
+    ctx.strokeStyle = '#004488';
+    ctx.lineWidth = 1;
+    for (let i = 1; i
