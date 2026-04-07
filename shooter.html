@@ -54,10 +54,13 @@ body{background:#000;display:flex;justify-content:center;align-items:center;min-
 const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
 let player={x:400,y:550,width:40,height:40,speed:7,dx:0},bullets=[],enemies=[],particles=[],score=0,lives=3,level=1,gameRunning=false,keys={},enemySpawnTimer=0;
 
-// 音效系统（使用 Web Audio API 生成，无需外部文件）
-const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+// 音效系统（延迟初始化，避免浏览器阻止）
+let audioCtx=null;
+function initAudio(){
+if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+}
 function playSound(type){
-if(audioCtx.state==='suspended')audioCtx.resume();
+if(!audioCtx)return;
 const osc=audioCtx.createOscillator(),gainNode=audioCtx.createGain();
 osc.connect(gainNode);gainNode.connect(audioCtx.destination);
 if(type==='shoot'){osc.frequency.setValueAtTime(880,audioCtx.currentTime);osc.frequency.exponentialRampToValueAtTime(110,audioCtx.currentTime+0.1);gainNode.gain.setValueAtTime(0.3,audioCtx.currentTime);gainNode.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.1);osc.start();osc.stop(audioCtx.currentTime+0.1);}
@@ -113,7 +116,7 @@ function updateLives(){let hearts='';for(let i=0;i<lives;i++)hearts+='❤️';do
 function gameLoop(){if(!gameRunning)return;updatePlayer();updateBullets();updateEnemies();updateParticles();// 碰撞检测 bullets.forEach((b,bi)=>{enemies.forEach((e,ei)=>{if(checkCollision(b,e)){createExplosion(e.x+e.width/2,e.y+e.height/2,'#'+Math.floor(Math.random()*16777215).toString(16));playSound('explosion');bullets.splice(bi,1);enemies.splice(ei,1);score+=(e.type+1)*10;updateUI();if(score>=level*500){level++;spawnEnemy();spawnEnemy();}}});});enemySpawnTimer++;if(enemySpawnTimer>=60-level*5){spawnEnemy();enemySpawnTimer=0;}draw();requestAnimationFrame(gameLoop);}
 
 // 开始游戏
-function startGame(){gameRunning=true;score=0;lives=3;level=1;bullets=[];enemies=[];particles=[];player.x=400;document.getElementById('startScreen').classList.add('hidden');updateUI();updateLives();gameLoop();}
+function startGame(){initAudio();gameRunning=true;score=0;lives=3;level=1;bullets=[];enemies=[];particles=[];player.x=400;document.getElementById('startScreen').classList.add('hidden');updateUI();updateLives();gameLoop();}
 
 // 游戏结束
 function gameOver(){gameRunning=false;document.getElementById('finalScore').textContent=score;document.getElementById('gameOverScreen').classList.remove('hidden');}
